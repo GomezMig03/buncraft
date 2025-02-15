@@ -1,3 +1,5 @@
+import { toVarInt } from "./utils/types";
+
 console.log("Server is waiting for players...");
 
 Bun.listen({
@@ -6,7 +8,7 @@ Bun.listen({
   socket: {
     data(socket, data) {
       let buffer = Buffer.from(data);
-      let byteArray = Array.from(buffer);
+      const byteArray = Array.from(buffer);
       console.log(byteArray);
 
       const hand = convertHandshake(byteArray);
@@ -31,9 +33,7 @@ const convertHandshake = (byteArray) => {
     return;
   }
 
-  // TODO: Make a proper VarInt implementation as this assumes that the client will always send two bytes for protocol version
-  let protocolVersion = byteArray[2] & 0x7f;
-  protocolVersion |= (byteArray[3] & 0x7f) << 7;
+  const protocolVersion = toVarInt([byteArray[2], byteArray[3]]);
 
   const stringLength = byteArray[4];
 
