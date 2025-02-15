@@ -1,4 +1,4 @@
-import { toVarInt } from "./utils/types";
+import { toVarInt, toUshort } from "./utils/types";
 
 console.log("Server is waiting for players...");
 
@@ -46,10 +46,10 @@ const convertHandshake = (byteArray) => {
   const ipBuffer = Buffer.from(ip);
   const ipString = ipBuffer.toString("utf-8");
 
-  // Convert the two port bytes int a 16-bit uint
-  // TODO: Make an ushort implementation
-  const portString =
-    (byteArray[stringLength + 5] << 8) | byteArray[stringLength + 6];
+  const portString = toUshort([
+    byteArray[stringLength + 5],
+    byteArray[stringLength + 6],
+  ]);
 
   const nextState = byteArray[byteArray.length - 1];
 
