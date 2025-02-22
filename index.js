@@ -1,6 +1,9 @@
 import { asVarInt, asUshort, toVarInt } from "./utils/types"
+import { statusResponse } from "./utils/responses"
 
 console.log("Server is waiting for players...")
+
+let hand
 
 Bun.listen({
   hostname: "127.0.0.1",
@@ -10,22 +13,19 @@ Bun.listen({
       let buffer = Buffer.from(data)
       const byteArray = Array.from(buffer)
 
-      if (byteArray[0] === 1) {
-        socket.write(data) // pong
-        return 
-      }
+      console.log(byteArray)
 
-      const hand = convertHandshake(byteArray)
-      hand.show()
+      hand = convertHandshake(byteArray)
+      socket.write(hand.response())
     },
     open(socket) {
-      console.log(`${socket} socket opened`)
+      console.log(`socket opened`)
     },
     close(socket) {
-      console.log(`${socket} close`)
+      console.log(`socket closed`)
     },
     error(socket, error) {
-      console.log(`${socket} Error in socket: ${JSON.stringify(error)}`)
+      console.log(`Error in socket: ${JSON.stringify(error)}`)
     },
   },
 })
@@ -98,5 +98,9 @@ class Handshake {
         `Server + port: ${this.ip}:${this.port}\n` +
         `Next State: ${this.nextState}\n`,
     )
+  }
+
+  response() {
+    return statusResponse("1.21.4", 769, 100, 0, "Minecraft server written in js!", "")
   }
 }
